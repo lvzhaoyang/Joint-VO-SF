@@ -47,30 +47,30 @@ void VO_SF::initializeSceneCamera()
 	scene = window.get3DSceneAndLock();
 
 	//Grid (ground)
-	opengl::CGridPlaneXYPtr ground = opengl::CGridPlaneXY::Create();
+    opengl::CGridPlaneXY::Ptr ground = opengl::CGridPlaneXY::Create(-10, 10, -10, 10);
 	scene->insert( ground );
 
 	//Camera
 	CPose3D rel_lenspose(0,-0.022,0,0,0,0);
-	CBoxPtr camera = CBox::Create(math::TPoint3D(-0.02,-0.1,-0.01),math::TPoint3D(0.02,0.1,0.01));
+    CBox::Ptr camera (new CBox(math::TPoint3D(-0.02,-0.1,-0.01),math::TPoint3D(0.02,0.1,0.01)));
 	camera->setPose(cam_pose + rel_lenspose);
 	camera->setColor(0,1,0);
 	scene->insert( camera );
 
 	//Frustum
-	opengl::CFrustumPtr FOV = opengl::CFrustum::Create(0.3f, 2.f, 57.3*fovh, 57.3*fovv, 1.f, true, false);
+    opengl::CFrustum::Ptr FOV (new opengl::CFrustum(0.3f, 2.f, 57.3*fovh, 57.3*fovv, 1.f, true, false));
 	FOV->setColor(0.7,0.7,0.7);
 	FOV->setPose(cam_pose);
 	scene->insert( FOV );
 
 	//Reference est
-	opengl::CSetOfObjectsPtr reference_cam = opengl::stock_objects::CornerXYZ();
+    opengl::CSetOfObjects::Ptr reference_cam = opengl::stock_objects::CornerXYZ();
 	reference_cam->setScale(0.2);
 	reference_cam->setPose(cam_pose);
 	scene->insert( reference_cam );
 
 	//3D Points (last frame)
-	opengl::CPointCloudPtr points_lf = opengl::CPointCloud::Create();
+    opengl::CPointCloud::Ptr points_lf(new opengl::CPointCloud());
 	points_lf->setColor(0.f, 1.f, 1.f);
 	points_lf->setPointSize(3);
 	points_lf->enablePointSmooth();
@@ -78,7 +78,7 @@ void VO_SF::initializeSceneCamera()
 	scene->insert( points_lf );
 
     //Scene Flow (includes initial point cloud)
-    opengl::CVectorField3DPtr sf = opengl::CVectorField3D::Create();
+    opengl::CVectorField3D::Ptr sf(new opengl::CVectorField3D());
     sf->setPointSize(3.0f);
     sf->setLineWidth(2.0f);
     sf->setPointColor(1,0,0);
@@ -88,10 +88,10 @@ void VO_SF::initializeSceneCamera()
     scene->insert( sf );
 
 	//Labels
-	COpenGLViewportPtr vp_labels = scene->createViewport("labels");
+    COpenGLViewport::Ptr vp_labels = scene->createViewport("labels");
     vp_labels->setViewportPosition(0.7,0.05,240,180);
 
-	COpenGLViewportPtr vp_backg = scene->createViewport("background");
+    COpenGLViewport::Ptr vp_backg = scene->createViewport("background");
     vp_backg->setViewportPosition(0.1,0.05,240,180);
 
 	window.unlockAccess3DScene();
@@ -112,36 +112,36 @@ void VO_SF::initializeSceneDatasets()
 	scene = window.get3DSceneAndLock();
 
 	//Reference gt
-	opengl::CSetOfObjectsPtr reference_gt = opengl::stock_objects::CornerXYZ();
+    opengl::CSetOfObjects::Ptr reference_gt = opengl::stock_objects::CornerXYZ();
 	reference_gt->setScale(0.15);
 	scene->insert( reference_gt );
 
 	//Reference est
-	opengl::CSetOfObjectsPtr reference_est = opengl::stock_objects::CornerXYZ();
+    opengl::CSetOfObjects::Ptr reference_est = opengl::stock_objects::CornerXYZ();
 	reference_est->setScale(0.15);
 	scene->insert( reference_est );
 
 	//Segmented points (original)
-	opengl::CPointCloudColouredPtr seg_points = opengl::CPointCloudColoured::Create();
+    opengl::CPointCloudColoured::Ptr seg_points(new opengl::CPointCloudColoured());
 	seg_points->setColor(1,0,0);
 	seg_points->setPointSize(2);
 	seg_points->enablePointSmooth(1);
 	scene->insert( seg_points );
 
 	//Estimated trajectory
-	opengl::CSetOfLinesPtr estimated_traj = opengl::CSetOfLines::Create();
+    opengl::CSetOfLines::Ptr estimated_traj(new opengl::CSetOfLines());
 	estimated_traj->setColor(1.f, 0.f, 0.f);
 	estimated_traj->setLineWidth(5.f);
 	scene->insert(estimated_traj);
 
 	//GT trajectory
-	opengl::CSetOfLinesPtr gt_traj = opengl::CSetOfLines::Create();
+    opengl::CSetOfLines::Ptr gt_traj(new opengl::CSetOfLines());
 	gt_traj->setColor(0.f, 0.f, 0.f);
 	gt_traj->setLineWidth(5.f);
 	scene->insert(gt_traj);
 
 	//Point cloud for the scene flow
-	opengl::CPointCloudPtr sf_points = opengl::CPointCloud::Create();
+    opengl::CPointCloud::Ptr sf_points(new opengl::CPointCloud());
 	sf_points->setColor(0,1,1);
 	sf_points->setPointSize(3);
 	sf_points->enablePointSmooth(1);
@@ -149,13 +149,13 @@ void VO_SF::initializeSceneDatasets()
 
 
 	//Labels
-	COpenGLViewportPtr vp_image = scene->createViewport("image");
+    COpenGLViewport::Ptr vp_image = scene->createViewport("image");
     vp_image->setViewportPosition(0.775,0.675,320,240);
 
-	COpenGLViewportPtr vp_labels = scene->createViewport("labels");
+    COpenGLViewport::Ptr vp_labels = scene->createViewport("labels");
     vp_labels->setViewportPosition(0.775,0.350,320,240);
 
-	COpenGLViewportPtr vp_backg = scene->createViewport("background");
+    COpenGLViewport::Ptr vp_backg = scene->createViewport("background");
 	vp_backg->setViewportPosition(0.775,0.025,320,240);
 
 
@@ -179,38 +179,38 @@ void VO_SF::initializeSceneImageSeq()
 
 	//Camera
 	CPose3D rel_lenspose(0,-0.022,0,0,0,0);
-	CBoxPtr camera = CBox::Create(math::TPoint3D(-0.02,-0.1,-0.01),math::TPoint3D(0.02,0.1,0.01));
+    CBox::Ptr camera (new CBox(math::TPoint3D(-0.02,-0.1,-0.01),math::TPoint3D(0.02,0.1,0.01)));
 	camera->setPose(cam_pose + rel_lenspose);
 	camera->setColor(0,1,0);
 	scene->insert( camera );
 
 	//Frustum
-	opengl::CFrustumPtr FOV = opengl::CFrustum::Create(0.3f, 2.f, 57.3*fovh, 57.3*fovv, 1.f, true, false);
+    opengl::CFrustum::Ptr FOV (new opengl::CFrustum(0.3f, 2.f, 57.3*fovh, 57.3*fovv, 1.f, true, false));
 	FOV->setColor(0.7,0.7,0.7);
 	FOV->setPose(cam_pose);
 	scene->insert( FOV );
 
 	//Reference est
-	opengl::CSetOfObjectsPtr reference_cam = opengl::stock_objects::CornerXYZ();
+    opengl::CSetOfObjects::Ptr reference_cam = opengl::stock_objects::CornerXYZ();
 	reference_cam->setScale(0.2);
 	reference_cam->setPose(cam_pose);
 	scene->insert( reference_cam );
 
 	//Estimated trajectory
-	opengl::CSetOfLinesPtr estimated_traj = opengl::CSetOfLines::Create();
+    opengl::CSetOfLines::Ptr estimated_traj(new opengl::CSetOfLines());
 	estimated_traj->setColor(0.f, 0.8f, 0.f);
 	estimated_traj->setLineWidth(5.f);
 	scene->insert(estimated_traj);
 
 	//3D points (last frame)
-	opengl::CPointCloudColouredPtr seg_points = opengl::CPointCloudColoured::Create();
+    opengl::CPointCloudColoured::Ptr seg_points(new opengl::CPointCloudColoured());
 	seg_points->setColor(1,0,0);
 	seg_points->setPointSize(2);
 	seg_points->enablePointSmooth(1);
 	scene->insert( seg_points );
 
     //Scene Flow (includes initial point cloud)
-    opengl::CVectorField3DPtr sf = opengl::CVectorField3D::Create();
+    opengl::CVectorField3D::Ptr sf(new opengl::CVectorField3D());
     sf->setPointSize(3.f);
     sf->setLineWidth(1.f);
     sf->setPointColor(1,0,0);
@@ -223,13 +223,13 @@ void VO_SF::initializeSceneImageSeq()
     scene->insert( sf );
 
 	//Labels
-	COpenGLViewportPtr vp_image = scene->createViewport("image");
+    COpenGLViewport::Ptr vp_image = scene->createViewport("image");
     vp_image->setViewportPosition(0.775,0.675,320,240);
 
-	COpenGLViewportPtr vp_labels = scene->createViewport("labels");
+    COpenGLViewport::Ptr vp_labels = scene->createViewport("labels");
     vp_labels->setViewportPosition(0.775,0.350,320,240);
 
-	COpenGLViewportPtr vp_backg = scene->createViewport("background");
+    COpenGLViewport::Ptr vp_backg = scene->createViewport("background");
 	vp_backg->setViewportPosition(0.775,0.025,320,240);
 
 	window.unlockAccess3DScene();
@@ -255,22 +255,22 @@ void VO_SF::updateSceneCamera(bool clean_sf)
 
 	//Camera
 	CPose3D rel_lenspose(0,-0.022,0,0,0,0);
-	CBoxPtr camera = scene->getByClass<CBox>(0);
+    CBox::Ptr camera = scene->getByClass<CBox>(0);
 	camera->setPose(cam_pose + rel_lenspose);
 	scene->insert( camera );
 
 	//Frustum
-	opengl::CFrustumPtr FOV = scene->getByClass<CFrustum>(0);
+    opengl::CFrustum::Ptr FOV = scene->getByClass<CFrustum>(0);
 	FOV->setPose(cam_pose);
 	scene->insert( FOV );
 
 	//Reference tk
-	opengl::CSetOfObjectsPtr reference_cam = scene->getByClass<CSetOfObjects>(0);
+    opengl::CSetOfObjects::Ptr reference_cam = scene->getByClass<CSetOfObjects>(0);
 	reference_cam->setPose(cam_pose);
 	scene->insert( reference_cam );
 
 	//Points of the last frame
-	opengl::CPointCloudPtr kin_points = scene->getByClass<CPointCloud>(0);
+    opengl::CPointCloud::Ptr kin_points = scene->getByClass<CPointCloud>(0);
 	kin_points->clear();
 	for (unsigned int u=0; u<cols; u++)
 		for (unsigned int v=0; v<rows; v++)
@@ -286,18 +286,18 @@ void VO_SF::updateSceneCamera(bool clean_sf)
         motionfield[2].assign(0.f);
     }
 
-	opengl::CVectorField3DPtr sf = scene->getByClass<CVectorField3D>(0);
+    opengl::CVectorField3D::Ptr sf = scene->getByClass<CVectorField3D>(0);
     sf->setPointCoordinates(depth_old[repr_level], xx_old[repr_level], yy_old[repr_level]);	
 	sf->setVectorField(motionfield[0], motionfield[1], motionfield[2]);
 
 	//Labels
-	COpenGLViewportPtr vp_labels = scene->getViewport("labels");
+    COpenGLViewport::Ptr vp_labels = scene->getViewport("labels");
     image.setFromRGBMatrices(labels_image[0], labels_image[1], labels_image[2], true);
     image.flipVertical();
     vp_labels->setImageView(image);
 
 	//Background
-	COpenGLViewportPtr vp_backg = scene->getViewport("background");
+    COpenGLViewport::Ptr vp_backg = scene->getViewport("background");
     image.setFromRGBMatrices(backg_image[0], backg_image[1], backg_image[2], true);
     image.flipVertical();
     vp_backg->setImageView(image);
@@ -320,16 +320,16 @@ void VO_SF::updateSceneDatasets(const CPose3D &gt, const CPose3D &gt_old)
 	scene = window.get3DSceneAndLock();
 
 	//Cameras
-	opengl::CSetOfObjectsPtr reference_gt = scene->getByClass<CSetOfObjects>(0);
+    opengl::CSetOfObjects::Ptr reference_gt = scene->getByClass<CSetOfObjects>(0);
 	reference_gt->setPose(gt);
 	scene->insert( reference_gt );
 
-	opengl::CSetOfObjectsPtr reference_est = scene->getByClass<CSetOfObjects>(1);
+    opengl::CSetOfObjects::Ptr reference_est = scene->getByClass<CSetOfObjects>(1);
 	reference_est->setPose(cam_pose);
 	scene->insert( reference_est );
 
 	//Points
-	opengl::CPointCloudColouredPtr points = scene->getByClass<CPointCloudColoured>(0);
+    opengl::CPointCloudColoured::Ptr points = scene->getByClass<CPointCloudColoured>(0);
 	points->clear();
 	points->setPose(gt);
 	const unsigned int size_factor = width/cols;
@@ -341,29 +341,29 @@ void VO_SF::updateSceneDatasets(const CPose3D &gt, const CPose3D &gt_old)
 
 
 	//Trajectories
-	opengl::CSetOfLinesPtr estimated_traj = scene->getByClass<CSetOfLines>(0);
+    opengl::CSetOfLines::Ptr estimated_traj = scene->getByClass<CSetOfLines>(0);
 	estimated_traj->appendLine(cam_pose[0], cam_pose[1], cam_pose[2], cam_oldpose[0], cam_oldpose[1], cam_oldpose[2]);
 
-	opengl::CSetOfLinesPtr gt_traj = scene->getByClass<CSetOfLines>(1);
+    opengl::CSetOfLines::Ptr gt_traj = scene->getByClass<CSetOfLines>(1);
 	gt_traj->appendLine(gt[0], gt[1], gt[2], gt_old[0], gt_old[1], gt_old[2]);
 
 
 	//Image
-	COpenGLViewportPtr vp_image = scene->getViewport("image");
+    COpenGLViewport::Ptr vp_image = scene->getViewport("image");
     image.setFromRGBMatrices(im_r_old, im_g_old, im_b_old, true);
     image.flipVertical();
 	//image.flipHorizontal();
     vp_image->setImageView(image);
 
 	//Labels
-	COpenGLViewportPtr vp_labels = scene->getViewport("labels");
+    COpenGLViewport::Ptr vp_labels = scene->getViewport("labels");
     image.setFromRGBMatrices(labels_image[0], labels_image[1], labels_image[2], true);
     image.flipVertical();
 	//image.flipHorizontal();
     vp_labels->setImageView(image);
 
 	//Background
-	COpenGLViewportPtr vp_backg = scene->getViewport("background");
+    COpenGLViewport::Ptr vp_backg = scene->getViewport("background");
 	image.setFromRGBMatrices(backg_image[0], backg_image[1], backg_image[2], true);
     image.flipVertical();
 	//image.flipHorizontal();
@@ -394,24 +394,24 @@ void VO_SF::updateSceneImageSeq()
 
 	//Camera
 	CPose3D rel_lenspose(0,-0.022,0,0,0,0);
-	CBoxPtr camera = scene->getByClass<CBox>(0);
+    CBox::Ptr camera = scene->getByClass<CBox>(0);
 	camera->setPose(cam_pose + rel_lenspose);
 	scene->insert( camera );
 
 	//Frustum
-	opengl::CFrustumPtr FOV = scene->getByClass<CFrustum>(0);
+    opengl::CFrustum::Ptr FOV = scene->getByClass<CFrustum>(0);
 	FOV->setPose(cam_pose);
 
 	//Reference tk
-	opengl::CSetOfObjectsPtr reference_cam = scene->getByClass<CSetOfObjects>(0);
+    opengl::CSetOfObjects::Ptr reference_cam = scene->getByClass<CSetOfObjects>(0);
 	reference_cam->setPose(cam_pose);
 
 	//Estimated trajectory
-	opengl::CSetOfLinesPtr estimated_traj = scene->getByClass<CSetOfLines>(0);
+    opengl::CSetOfLines::Ptr estimated_traj = scene->getByClass<CSetOfLines>(0);
 	estimated_traj->appendLine(cam_pose[0], cam_pose[1], cam_pose[2], cam_oldpose[0], cam_oldpose[1], cam_oldpose[2]);
 
 	//3D points (last frame)
-	opengl::CPointCloudColouredPtr points = scene->getByClass<CPointCloudColoured>(0);
+    opengl::CPointCloudColoured::Ptr points = scene->getByClass<CPointCloudColoured>(0);
 	points->setPose(cam_pose);
 	points->clear();
 	const float brigthing_fact = 0.7f;
@@ -430,7 +430,7 @@ void VO_SF::updateSceneImageSeq()
 
 
 	//Scene flow
-	opengl::CVectorField3DPtr sf = scene->getByClass<CVectorField3D>(0);
+    opengl::CVectorField3D::Ptr sf = scene->getByClass<CVectorField3D>(0);
 	sf->setPose(cam_pose);
     sf->setPointCoordinates(depth_old[repr_level], xx_old[repr_level], yy_old[repr_level]);
 
@@ -447,21 +447,21 @@ void VO_SF::updateSceneImageSeq()
 
 
 	//Image
-	COpenGLViewportPtr vp_image = scene->getViewport("image");
+    COpenGLViewport::Ptr vp_image = scene->getViewport("image");
     image.setFromRGBMatrices(im_r_old, im_g_old, im_b_old, true);
     image.flipVertical();
 	//image.flipHorizontal();
     vp_image->setImageView(image);
 
 	//Labels
-	COpenGLViewportPtr vp_labels = scene->getViewport("labels");
+    COpenGLViewport::Ptr vp_labels = scene->getViewport("labels");
     image.setFromRGBMatrices(labels_image[0], labels_image[1], labels_image[2], true);
     image.flipVertical();
 	//image.flipHorizontal();
     vp_labels->setImageView(image);
 
 	//Background
-	COpenGLViewportPtr vp_backg = scene->getViewport("background");
+    COpenGLViewport::Ptr vp_backg = scene->getViewport("background");
 	image.setFromRGBMatrices(backg_image[0], backg_image[1], backg_image[2], true);
     image.flipVertical();
 	//image.flipHorizontal();

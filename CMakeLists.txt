@@ -5,11 +5,13 @@ if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 NEW)  # Required by CMake 2.7+
 endif(COMMAND cmake_policy)
 
+set (CMAKE_CXX_STANDARD 14) # required by MRPT, to use C++14
+
 # custom cmake modules
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 #Find dependencies (Eigen is included in MRPT)
-FIND_PACKAGE(MRPT REQUIRED base gui opengl obs)
+FIND_PACKAGE(MRPT REQUIRED base gui obs opengl)
 FIND_PACKAGE(OpenCV REQUIRED)
 FIND_PACKAGE(OpenNI2 REQUIRED)
 FIND_PACKAGE(TBB REQUIRED)
@@ -17,7 +19,6 @@ FIND_PACKAGE(TBB REQUIRED)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${OpenNI2_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${TBB_INCLUDE_DIRS})
-
 
 
 ADD_LIBRARY(vo_sf_lib
@@ -35,10 +36,10 @@ ADD_LIBRARY(vo_sf_lib
 	opencv_ext.cpp)
 	
 TARGET_LINK_LIBRARIES(vo_sf_lib
-	${MRPT_LIBS}
-	${OpenNI2_LIBRARY}
+        ${MRPT_LIBS}
+        ${OpenNI2_LIBRARY}
 	${OpenCV_LIBS}
-    ${TBB_LIBRARIES})
+        ${TBB_LIBRARIES})
 	
 		
 #To run online with an RGB-D camera	

@@ -169,7 +169,7 @@ public:
     //						3D Scene
 	//--------------------------------------------------------------
 	mrpt::gui::CDisplayWindow3D		window;
-	mrpt::opengl::COpenGLScenePtr	scene;
+    mrpt::opengl::COpenGLScene::Ptr	scene;
 	Eigen::MatrixXf labels_image[3], backg_image[3];
 
 	void initializeSceneCamera();
