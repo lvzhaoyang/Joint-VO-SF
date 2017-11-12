@@ -23,6 +23,7 @@
 
 #include <joint_vo_sf.h>
 #include <math.h>
+#include <opencv2/core/eigen.hpp>
 #include <structs_parallelization.h>
 
 using namespace mrpt;
@@ -52,8 +53,8 @@ VO_SF::VO_SF(unsigned int res_factor, float* K, int H, int W) :
     ws_foreground(3*W*H/(2*res_factor*res_factor)),
     ws_background(3*W*H/(2*res_factor*res_factor)) {
     //Resolutions and levels
-    rows = H;
-    cols = W;
+    rows = H/2;
+    cols = W/2;
 
 //    fovh = M_PI*62.5/180.0;
 //    fovv = M_PI*48.5/180.0;
@@ -99,7 +100,6 @@ void VO_SF::init() {
     Null.resize(rows,cols);
     weights_c.setSize(rows,cols);
     weights_d.setSize(rows,cols);
-
 
     //Resize matrices in a "pyramid"
     const unsigned int pyr_levels = round(log2(width/cols)) + ctf_levels;
@@ -280,12 +280,16 @@ bool VO_SF::loadImageFromSequence(string files_dir, unsigned int index, unsigned
 	return false;
 }
 
-void VO_SF::saveFlowAndSegmToFile(string files_dir)
+void VO_SF::saveFlowAndSegmToFile(const string& files_dir)
 {
     char aux[30];
 	string name;
-	sprintf(aux, "ClusterFlow.xml");
+    sprintf(aux, "ClusterFlowWithPose.xml");
     name = files_dir + aux;
+
+    cv::Mat T = cv::Mat_<float>::ones(4,4);
+//    cv::eigen2cv(cam_oldpose, P_last);
+    cv::eigen2cv(T_odometry, T);
 
 	cv::FileStorage SFlow;
     SFlow.open(name, cv::FileStorage::WRITE);
@@ -309,6 +313,7 @@ void VO_SF::saveFlowAndSegmToFile(string files_dir)
     SFlow << "SFx" << rmx;
     SFlow << "SFy" << rmy;
     SFlow << "SFz" << rmz;
+    SFlow << "T" << T;
     SFlow.release();
 	cout << endl << "Scene flow saved in " << name;
 
@@ -316,12 +321,12 @@ void VO_SF::saveFlowAndSegmToFile(string files_dir)
 	sprintf(aux, "Segmentation_backg_color.png");
     name = files_dir + aux;
 	cv::imwrite(name, segm_col);
-	cout << endl << "Segmentation (color) saved in " << name;
+    cout << endl << "Segmentation (color) saved in " << name << endl;
 
 	sprintf(aux, "Segmentation_kmeans.png");
     name = files_dir + aux;
 	cv::imwrite(name, kmeans);
-	cout << endl << "Segmentation (kmeans) saved in " << name;
+    cout << endl << "Segmentation (kmeans) saved in " << name << endl;
 }
 
 
@@ -1034,7 +1039,6 @@ void VO_SF::run_VO_SF(bool create_image_pyr)
     //----------------------------------------------------------------------------------
 	if (create_image_pyr) 
 		createImagePyramid();
-
     //Create labels
     //----------------------------------------------------------------------------------
     //Kmeans

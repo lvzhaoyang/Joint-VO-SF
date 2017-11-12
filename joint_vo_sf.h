@@ -191,7 +191,7 @@ public:
 	//--------------------------------------------------------------
 	void loadImagePairFromFiles(std::string files_dir, unsigned int res_factor);
 	bool loadImageFromSequence(std::string files_dir, unsigned int index, unsigned int res_factor);
-	void saveFlowAndSegmToFile(std::string files_dir);	
+    void saveFlowAndSegmToFile(const std::string& files_dir);
 
     void loadCVImagesPair(const cv::Mat& img0, const cv::Mat& img1, const cv::Mat& depth0, const cv::Mat& depth1, unsigned int res_factor);
 

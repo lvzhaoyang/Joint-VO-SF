@@ -165,7 +165,7 @@ int main (int argc, char* argv[]) {
     cf.initializeSceneCamera();
 
     //Run the algorithm
-    cf.run_VO_SF(false);
+    cf.run_VO_SF(true);
 
     cf.createImagesOfSegmentations();
 

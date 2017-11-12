@@ -43,7 +43,7 @@ ADD_LIBRARY(vo_sf_lib SHARED
 TARGET_LINK_LIBRARIES(vo_sf_lib
         ${MRPT_LIBS}
         ${OpenNI2_LIBRARY}
-		${OpenCV_LIBS}
+        ${OpenCV_LIBS}
         ${TBB_LIBRARIES})
 	
 		
