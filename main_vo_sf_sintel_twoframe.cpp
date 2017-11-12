@@ -64,15 +64,15 @@ cv::Mat load_dpt(const char* path)
     int width, height;
 
     myFile.read((char*)tag, sizeof(char) * 5);
-    cout << tag << endl;
+//    cout << tag << endl;
 
     myFile.seekg(4);
     myFile.read((char*)&width, sizeof(int));
-    cout << width << endl;
+//    cout << width << endl;
 
     myFile.seekg(4 + sizeof(int));
     myFile.read((char*)&height, sizeof(int));
-    cout << height << endl;
+//    cout << height << endl;
 
     //float* data = new float[width*height * 4];
     float* data = new float[width*height];
@@ -80,16 +80,16 @@ cv::Mat load_dpt(const char* path)
     myFile.seekg(4 + sizeof(int) * 2);
     myFile.read((char*)data, sizeof(float)*width*height);
 
-    float min_ = 10000.0;
-    float max_ = 0.0;
+//    float min_ = 10000.0;
+//    float max_ = 0.0;
     for(int i = 0; i < width*height; i++){
-        float val = data[i];
-        if (val < min_) min_ = val;
-        if (val > max_) max_ = val;
+        float val = std::min<float>(data[i], 3350);
+//        if (val < min_) min_ = val;
+//        if (val > max_) max_ = val;
     }
 
-    //cout << "=================================" << endl;
-    cout << "max and min: " << max_ << "," << min_ << endl;
+//    //cout << "=================================" << endl;
+//    cout << "max and min: " << max_ << "," << min_ << endl;
 
     // this part later we could change it with
     // depth_raw1.convertTo(depth0, CV_16UC1, 1000.0); then we don't need to change maxZ and minZ
@@ -105,10 +105,10 @@ cv::Mat load_dpt(const char* path)
     // there are resolution trade off. This need open question.
     // but now let's make the work
 
-    float scale = 1000.0;
+    float scale = 1.0;
     for (int row = 0; row < height; row++){
         for (int col = 0; col < width; col++){
-            depth.at<float>(row, col) = (float) scale* data[row*width + col];
+            depth.at<float>(row, col) = (float) data[row*width + col];
             //depth.at<short>(row, col) = (ushort)constZ*(float)((minZ + (maxZ - minZ)*(data[row*width + col] - min_) / (max_ - min_) )) ;
         }
     }
@@ -162,16 +162,16 @@ int main (int argc, char* argv[]) {
     cf.loadCVImagesPair(img0, img1, depth0, depth1, res_factor);
 
     //Create the 3D Scene
-    cf.initializeSceneCamera();
+//    cf.initializeSceneCamera();
 
     //Run the algorithm
-    cf.run_VO_SF(true);
+    cf.run_VO_SF(false);
 
     cf.createImagesOfSegmentations();
 
 
     //Update the 3D scene
-    cf.updateSceneCamera(false);
+//    cf.updateSceneCamera(false);
 
     //Save results?
     if (save_results)
