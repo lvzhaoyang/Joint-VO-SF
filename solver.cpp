@@ -22,6 +22,7 @@
 *********************************************************************************/
 
 #include <joint_vo_sf.h>
+#include <math.h>
 #include <structs_parallelization.h>
 
 using namespace mrpt;
@@ -30,8 +31,9 @@ using namespace std;
 using namespace Eigen;
 
 //A strange size for "ws..." due to the fact that some pixels are used twice for odometry and scene flow (hence the 3/2 safety factor)
-VO_SF::VO_SF(unsigned int res_factor) : ws_foreground(3*640*480/(2*res_factor*res_factor)), ws_background(3*640*480/(2*res_factor*res_factor))  
-{
+VO_SF::VO_SF(unsigned int res_factor) :
+    ws_foreground(3*640*480/(2*res_factor*res_factor)),
+    ws_background(3*640*480/(2*res_factor*res_factor)) {
     //Resolutions and levels
 	rows = 240;
     cols = 320;
@@ -41,28 +43,57 @@ VO_SF::VO_SF(unsigned int res_factor) : ws_foreground(3*640*480/(2*res_factor*re
     height = 480/res_factor;
 	ctf_levels = log2(cols/40) + 2;
 
-	//Solver
-	k_photometric_res = 0.15f;
-	irls_chi2_decrement_threshold = 0.98f;
+    // call the init functions to initialize everything else
+    init();
+}
+
+// the intrinsic is just a 9x9 array for camera intrinsics
+VO_SF::VO_SF(unsigned int res_factor, float* K, int H, int W) :
+    ws_foreground(3*W*H/(2*res_factor*res_factor)),
+    ws_background(3*W*H/(2*res_factor*res_factor)) {
+    //Resolutions and levels
+    rows = H;
+    cols = W;
+
+//    fovh = M_PI*62.5/180.0;
+//    fovv = M_PI*48.5/180.0;
+    // calculate fov according to
+    //https://stackoverflow.com/questions/39992968/how-to-calculate-field-of-view-of-the-camera-from-camera-intrinsic-matrix
+    fovh = M_PI*atan(W / (2*K[0])) / 180.0;
+    fovv = M_PI*atan(H / (2*K[4])) / 180.0;
+
+    width = W/res_factor;
+    height = H/res_factor;
+
+    ctf_levels = log2(cols/40) + 2;
+
+    // call the init functions to initialize everything else
+    init();
+}
+
+void VO_SF::init() {
+    //Solver
+    k_photometric_res = 0.15f;
+    irls_chi2_decrement_threshold = 0.98f;
     irls_delta_threshold = 1e-6f;
-	max_iter_irls = 10;
-	max_iter_per_level = 3;
-	use_b_temp_reg = false;
+    max_iter_irls = 10;
+    max_iter_per_level = 3;
+    use_b_temp_reg = false;
 
-	//CamPose
-	cam_pose.setFromValues(0,0,0,0,0,0);
-	cam_oldpose = cam_pose;
+    //CamPose
+    cam_pose.setFromValues(0,0,0,0,0,0);
+    cam_oldpose = cam_pose;
 
-	//Resize matrices which are not in a "pyramid"
-	depth_wf.setSize(height,width);
-	intensity_wf.setSize(height,width);
-	im_r.resize(height,width); im_g.resize(height,width); im_b.resize(height,width);
-	im_r_old.resize(height,width); im_g_old.resize(height,width); im_b_old.resize(height,width);
+    //Resize matrices which are not in a "pyramid"
+    depth_wf.setSize(height,width);
+    intensity_wf.setSize(height,width);
+    im_r.resize(height,width); im_g.resize(height,width); im_b.resize(height,width);
+    im_r_old.resize(height,width); im_g_old.resize(height,width); im_b_old.resize(height,width);
 
     motionfield[0].setSize(rows,cols);
     motionfield[1].setSize(rows,cols);
     motionfield[2].setSize(rows,cols);
-	dct.resize(rows,cols); ddt.resize(rows,cols);
+    dct.resize(rows,cols); ddt.resize(rows,cols);
     dcu.resize(rows,cols); ddu.resize(rows,cols);
     dcv.resize(rows,cols); ddv.resize(rows,cols);
     Null.resize(rows,cols);
@@ -70,7 +101,7 @@ VO_SF::VO_SF(unsigned int res_factor) : ws_foreground(3*640*480/(2*res_factor*re
     weights_d.setSize(rows,cols);
 
 
-	//Resize matrices in a "pyramid"
+    //Resize matrices in a "pyramid"
     const unsigned int pyr_levels = round(log2(width/cols)) + ctf_levels;
     intensity.resize(pyr_levels); intensity_old.resize(pyr_levels); intensity_inter.resize(pyr_levels);
     depth.resize(pyr_levels); depth_old.resize(pyr_levels); depth_inter.resize(pyr_levels);
@@ -80,10 +111,10 @@ VO_SF::VO_SF(unsigned int res_factor) : ws_foreground(3*640*480/(2*res_factor*re
     depth_warped.resize(pyr_levels);
     xx_warped.resize(pyr_levels);
     yy_warped.resize(pyr_levels);
-	labels.resize(pyr_levels);
-	label_funct.resize(pyr_levels);
+    labels.resize(pyr_levels);
+    label_funct.resize(pyr_levels);
 
-	for (unsigned int i = 0; i<pyr_levels; i++)
+    for (unsigned int i = 0; i<pyr_levels; i++)
     {
         const unsigned int s = pow(2.f,int(i));
         cols_i = width/s; rows_i = height/s;
@@ -95,16 +126,16 @@ VO_SF::VO_SF(unsigned int res_factor) : ws_foreground(3*640*480/(2*res_factor*re
         yy[i].resize(rows_i, cols_i); yy_inter[i].resize(rows_i, cols_i); yy_old[i].resize(rows_i, cols_i);
         yy[i].assign(0.f); yy_old[i].assign(0.f);
 
-		if (cols_i <= cols)
-		{
+        if (cols_i <= cols)
+        {
             intensity_warped[i].resize(rows_i,cols_i);
             depth_warped[i].resize(rows_i,cols_i);
             xx_warped[i].resize(rows_i,cols_i);
             yy_warped[i].resize(rows_i,cols_i);
-			labels[i].resize(rows_i, cols_i);
-			label_funct[i].resize(NUM_LABELS+1, rows_i*cols_i);
+            labels[i].resize(rows_i, cols_i);
+            label_funct[i].resize(NUM_LABELS+1, rows_i*cols_i);
             label_funct[i].assign(0.f);
-		}
+        }
     }
 
     //Compute gaussian and "fast-symmetric" mask
@@ -116,17 +147,43 @@ VO_SF::VO_SF(unsigned int res_factor) : ws_foreground(3*640*480/(2*res_factor*re
 
     //                      Labels
     //=========================================================
-	b_segm_image_warped.setSize(rows,cols);
-	b_segm_image_warped.fill(0.f);
-	label_static.fill(true);
-	label_dynamic.fill(false);
+    b_segm_image_warped.setSize(rows,cols);
+    b_segm_image_warped.fill(0.f);
+    label_static.fill(true);
+    label_dynamic.fill(false);
 
     for (unsigned int c=0; c<3; c++)
-	{
-		backg_image[c].resize(rows,cols);
+    {
+        backg_image[c].resize(rows,cols);
         labels_image[c].resize(rows,cols);
-	}
+    }
 }
+
+void VO_SF::loadCVImagesPair(const cv::Mat& img0, const cv::Mat& img1,
+                             const cv::Mat& depth0, const cv::Mat& depth1, unsigned int res_factor) {
+    const float norm_factor = 1.f/255.f;
+    char aux[30];
+    for (unsigned int v=0; v<height; v++)
+        for (unsigned int u=0; u<width; u++)
+            intensity_wf(height-1-v,u) = norm_factor*img0.at<unsigned char>(res_factor*v+1,res_factor*u);
+
+    for (unsigned int v=0; v<height; v++)
+        for (unsigned int u=0; u<width; u++)
+            depth_wf(height-1-v,u) = depth0.at<float>(res_factor*v+1,res_factor*u);
+
+    createImagePyramid();
+
+    for (unsigned int v=0; v<height; v++)
+        for (unsigned int u=0; u<width; u++)
+            intensity_wf(height-1-v,u) = norm_factor*img1.at<unsigned char>(res_factor*v+1,res_factor*u);
+
+    for (unsigned int v=0; v<height; v++)
+        for (unsigned int u=0; u<width; u++)
+            depth_wf(height-1-v,u) = depth1.at<float>(res_factor*v+1,res_factor*u);
+
+    createImagePyramid();
+}
+
 
 void VO_SF::loadImagePairFromFiles(string files_dir, unsigned int res_factor)
 {
