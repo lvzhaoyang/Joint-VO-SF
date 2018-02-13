@@ -21,7 +21,7 @@
 **  along with this program. If not, see <http://www.gnu.org/licenses/>.		**
 **																				**
 *********************************************************************************/
-
+#include <iostream>
 #include <string.h>
 #include "joint_vo_sf.h"
 
@@ -34,12 +34,12 @@
 
 int main()
 {	
-	const bool save_results = false;
+	const bool save_results = true;
 	const unsigned int res_factor = 2;
 	VO_SF cf(res_factor);
 
 	//Set image dir
-	std::string dir = ".../data/opening door/";
+	std::string dir = "../data/opening\ door/";
 
 	//Load images and create both pyramids
 	cf.loadImagePairFromFiles(dir, res_factor);
@@ -58,7 +58,7 @@ int main()
 	if (save_results)
 		cf.saveFlowAndSegmToFile(dir);
 
-	mrpt::system::os::getch();
+	//mrpt::system::os::getch();
 	return 0;
 }
 

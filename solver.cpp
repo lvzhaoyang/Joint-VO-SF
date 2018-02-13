@@ -60,8 +60,8 @@ VO_SF::VO_SF(unsigned int res_factor, float* K, int H, int W) :
 //    fovv = M_PI*48.5/180.0;
     // calculate fov according to
     //https://stackoverflow.com/questions/39992968/how-to-calculate-field-of-view-of-the-camera-from-camera-intrinsic-matrix
-    fovh = M_PI*atan(W / (2*K[0])) / 180.0;
-    fovv = M_PI*atan(H / (2*K[4])) / 180.0;
+    fovh = atan(W / (2*K[0]));
+    fovv = atan(H / (2*K[4]));
 
     width = W/res_factor;
     height = H/res_factor;

@@ -46,7 +46,8 @@ void Datasets::openRawlog()
 
 	// Set external images directory:
 	const string imgsPath = CRawlog::detectImagesDirectory(filename);
-	utils::CImage::IMAGES_PATH_BASE = imgsPath;
+    //utils::CImage::IMAGES_PATH_BASE = imgsPath;
+    utils::CImage::setImagesPathBase(imgsPath);
 
 
 	//					Load ground-truth

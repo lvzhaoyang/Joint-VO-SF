@@ -42,7 +42,7 @@ int main()
 	//Set first image to load, decimation factor and the sequence dir
 	unsigned int im_count = 1;
 	const unsigned int decimation = 1; //5
-	std::string dir = ".../data/sequence people moving/"; 
+	std::string dir = "../data/sequence\ people\ moving/"; 
 
 	//Load image and create pyramid
 	cf.loadImageFromSequence(dir, im_count, res_factor);

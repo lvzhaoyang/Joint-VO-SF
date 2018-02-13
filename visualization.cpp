@@ -35,7 +35,7 @@ void VO_SF::initializeSceneCamera()
     //Initialize camera for a good visualization
 	cam_pose.setFromValues(0,0,1.5,0,0,0);
 
-	global_settings::OCTREE_RENDER_MAX_POINTS_PER_NODE = 10000000;
+    global_settings::OCTREE_RENDER_MAX_POINTS_PER_NODE(10000000);
 	window.resize(1000,900);
 	window.setPos(900,0);
 	window.setCameraZoom(8);
@@ -100,7 +100,7 @@ void VO_SF::initializeSceneCamera()
 
 void VO_SF::initializeSceneDatasets()
 {
-	global_settings::OCTREE_RENDER_MAX_POINTS_PER_NODE = 10000000;
+    global_settings::OCTREE_RENDER_MAX_POINTS_PER_NODE(10000000);
 	window.resize(1600,800);
 	window.setPos(300,0);
 	window.setCameraZoom(8);
@@ -167,7 +167,7 @@ void VO_SF::initializeSceneImageSeq()
 {
 	const unsigned int repr_level = round(log2(width/cols));
 
-	global_settings::OCTREE_RENDER_MAX_POINTS_PER_NODE = 10000000;
+    global_settings::OCTREE_RENDER_MAX_POINTS_PER_NODE(10000000);
 	window.resize(1600,800);
 	window.setPos(300,0);
 	window.setCameraZoom(6);
