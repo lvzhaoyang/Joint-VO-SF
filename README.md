@@ -8,8 +8,15 @@ If you use it in your research, please cite the following paper:
 
 More info and video in:
 http://mapir.isa.uma.es/work/Joint-VO-SF
-  
-  
+
+## Note from Zhaoyang:
+
+To work with Ubuntu 16.04 system built MRPT library, there are quite a few changes I have made to the original code. If you want to use the original author distribution for reproducing the results in the original paper, I do not suggest you use this one. I always use SINTEL images to verify its correctness. Here are the changes I have made:
+
+- An executable file to work with SINTEL dataset, including file parsing and pre-processing.
+- Changes w.r.t. MRPT 1.9 interfact, to ensure it can correctly compile and be consistent with MRPT data type and API.
+
+
 ## 1. Configuration and Generation
 
 A CMakeLists.txt file is included to detect external dependencies and generate the project automatically. OpenCV, MRPT, OpenNI2 and Intel TBB are required, you can get them here:
