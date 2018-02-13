@@ -25,9 +25,9 @@
 #define joint_VO_SF_H
 
 
-#include <mrpt/system.h>
+#include <mrpt/img/TColor.h>
+#include <mrpt/img/CImage.h>
 #include <mrpt/poses/CPose3D.h>
-#include <mrpt/utils.h>
 #include <mrpt/gui/CDisplayWindow3D.h>
 #include <mrpt/opengl.h>
 #include <Eigen/Core>

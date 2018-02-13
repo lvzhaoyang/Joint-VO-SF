@@ -24,9 +24,9 @@
 #include <joint_vo_sf.h>
 
 using namespace mrpt;
+using namespace mrpt::img;
 using namespace mrpt::poses;
 using namespace mrpt::opengl;
-using namespace mrpt::utils;
 using namespace Eigen;
 
 
@@ -490,7 +490,7 @@ void VO_SF::createImagesOfSegmentations()
     for (unsigned int l=0; l<NUM_LABELS; l++)
     {
         const float indx = float(l)/float(NUM_LABELS-1);
-        mrpt::utils::colormap(mrpt::utils::cmJET, indx, r[l], g[l], b[l]);
+        mrpt::img::colormap(mrpt::img::cmJET, indx, r[l], g[l], b[l]);
     }
 
 	for (unsigned int c=0; c<3; c++)

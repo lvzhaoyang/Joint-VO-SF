@@ -24,7 +24,6 @@
 #include <joint_vo_sf.h>
 
 using namespace mrpt;
-using namespace mrpt::utils;
 using namespace std;
 using namespace Eigen;
 

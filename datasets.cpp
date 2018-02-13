@@ -47,7 +47,7 @@ void Datasets::openRawlog()
 	// Set external images directory:
 	const string imgsPath = CRawlog::detectImagesDirectory(filename);
     //utils::CImage::IMAGES_PATH_BASE = imgsPath;
-    utils::CImage::setImagesPathBase(imgsPath);
+    img::CImage::setImagesPathBase(imgsPath);
 
 
 	//					Load ground-truth
@@ -110,9 +110,9 @@ void Datasets::loadFrameAndPoseFromDataset(Eigen::MatrixXf &depth_wf, Eigen::Mat
     CObservation3DRangeScan::Ptr obs3D = std::dynamic_pointer_cast<CObservation3DRangeScan>(alfa);
 	obs3D->load();
 	const Eigen::MatrixXf range = obs3D->rangeImage;
-	const utils::CImage int_image =  obs3D->intensityImage;
-	const unsigned int height = range.getRowCount();
-	const unsigned int width = range.getColCount();
+    const img::CImage int_image =  obs3D->intensityImage;
+    const unsigned int height = range.rows();
+    const unsigned int width = range.cols();
 	const unsigned int cols = width/downsample, rows = height/downsample;
 
 	math::CMatrixFloat intensity, r, g, b;

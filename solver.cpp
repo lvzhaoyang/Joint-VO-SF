@@ -22,12 +22,13 @@
 *********************************************************************************/
 
 #include <joint_vo_sf.h>
+#include <mrpt/system/CTicTac.h>
 #include <math.h>
 #include <opencv2/core/eigen.hpp>
 #include <structs_parallelization.h>
 
 using namespace mrpt;
-using namespace mrpt::utils;
+using namespace mrpt::system;
 using namespace std;
 using namespace Eigen;
 

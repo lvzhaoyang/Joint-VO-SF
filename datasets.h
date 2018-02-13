@@ -21,9 +21,9 @@
 **																				**
 *********************************************************************************/
 
-#include <mrpt/utils.h>
+#include <mrpt/img/CImage.h>
+#include <mrpt/config/CConfigFileBase.h>
 #include <mrpt/obs/CRawlog.h>
-#include <mrpt/utils/CConfigFileBase.h>
 #include <mrpt/system/filesystem.h>
 #include <mrpt/obs/CObservation3DRangeScan.h>
 #include <Eigen/Core>
