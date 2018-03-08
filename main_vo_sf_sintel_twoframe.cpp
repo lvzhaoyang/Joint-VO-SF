@@ -162,7 +162,7 @@ int main (int argc, char* argv[]) {
     cv::Mat I0, I1;
     cv::cvtColor(img0, I0, cv::COLOR_RGB2GRAY);
     cv::cvtColor(img1, I1, cv::COLOR_RGB2GRAY);
-    cf.loadCVImagesPair(img0, img1, depth0, depth1, res_factor);
+    cf.loadCVImagesPair(I0, I1, depth0, depth1, res_factor);
 
     //Create the 3D Scene
 //    cf.initializeSceneCamera();
